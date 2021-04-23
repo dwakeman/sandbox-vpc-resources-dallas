@@ -181,7 +181,7 @@ resource "ibm_resource_key" "cos_credentials" {
 }
 
 data "ibm_container_cluster_config" "mycluster" {
-  cluster_name_id = resource.ibm_container_vpc_cluster.app_ocp_cluster_01.name
+  cluster_name_id = ibm_container_vpc_cluster.app_ocp_cluster_01.name
 
   depends_on = [
     ibm_container_vpc_cluster.app_ocp_cluster_01
