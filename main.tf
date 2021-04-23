@@ -189,13 +189,13 @@ data "ibm_container_cluster_config" "mycluster" {
 }
 
 provider "kubernetes" {
-  //load_config_file       = "false"
+  load_config_file       = "false"
   host                   = data.ibm_container_cluster_config.mycluster.host
   token                  = data.ibm_container_cluster_config.mycluster.token
-  cluster_ca_certificate = data.ibm_container_cluster_config.mycluster.ca_certificate
+  //cluster_ca_certificate = data.ibm_container_cluster_config.mycluster.ca_certificate
 }
 
-/*
+
 resource "kubernetes_namespace" "ocs" {
   metadata {
     labels = {
@@ -204,4 +204,3 @@ resource "kubernetes_namespace" "ocs" {
     name = "dw-example-namespace"
   }
 }
-*/
