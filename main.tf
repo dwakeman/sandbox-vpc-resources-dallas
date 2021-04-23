@@ -179,3 +179,27 @@ resource "ibm_resource_key" "cos_credentials" {
 
     depends_on = [ibm_resource_instance.nooba_store]
 }
+
+data "ibm_container_cluster_config" "mycluster" {
+  cluster_name_id = resource.ibm_container_vpc_cluster.app_ocp_cluster_01.name
+
+  depends_on = [
+    "ibm_container_vpc_cluster.app_ocp_cluster_01"
+  ]
+}
+
+provider "kubernetes" {
+  //load_config_file       = "false"
+  host                   = data.ibm_container_cluster_config.mycluster.host
+  token                  = data.ibm_container_cluster_config.mycluster.token
+  cluster_ca_certificate = data.ibm_container_cluster_config.mycluster.ca_certificate
+}
+
+resource "kubernetes_namespace" "ocs" {
+  metadata {
+    labels = {
+      "openshift.io/cluster-monitoring" = "true"
+    }
+    name = "terraform-example-namespace"
+  }
+}
