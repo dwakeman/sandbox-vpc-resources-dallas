@@ -1,9 +1,9 @@
 data "ibm_schematics_workspace" "vpc" {
-    workspace_id = vpc_schematics_workspace_id
+    workspace_id = var.vpc_schematics_workspace_id
 }
 
 data "ibm_schematics_output" "vpc" {
-    workspace_id = vpc_schematics_workspace_id
+    workspace_id = var.vpc_schematics_workspace_id
     template_id  = data.ibm_schematics_workspace.vpc.template_id.0
 }
 
