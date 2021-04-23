@@ -195,6 +195,7 @@ provider "kubernetes" {
   cluster_ca_certificate = data.ibm_container_cluster_config.mycluster.ca_certificate
 }
 
+/*
 resource "kubernetes_namespace" "ocs" {
   metadata {
     labels = {
@@ -203,3 +204,4 @@ resource "kubernetes_namespace" "ocs" {
     name = "dw-example-namespace"
   }
 }
+*/
