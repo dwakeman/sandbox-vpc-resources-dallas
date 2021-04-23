@@ -142,3 +142,40 @@ resource "ibm_container_vpc_worker_pool" "sds_pool" {
 
     depends_on = [ibm_container_vpc_cluster.app_ocp_cluster_01]
 }
+
+
+
+##############################################################################
+# Create instance of Databases for Etcd for use with Portworx in OCP Cluster
+##############################################################################
+resource "ibm_resource_instance" "nooba_store" {
+    name              = "nooba-store-${ibm_container_vpc_cluster.app_ocp_cluster_01.name}"
+    service           = "cloud-object-storage"
+    plan              = "standard"
+    location          = var.region
+    resource_group_id = data.ibm_resource_group.app_resource_group.id
+    tags              = ["env:${var.environment}",
+                         "vpc:${var.vpc_name}",
+                         "cluster:${ibm_container_vpc_cluster.app_ocp_cluster_01.id}",
+                         "schematics:${var.schematics_workspace_id}"]
+
+    timeouts {
+        create = "30m"
+        delete = "15m"
+    }
+
+    depends_on = [ibm_container_vpc_cluster.app_ocp_cluster_01]
+}
+
+
+##############################################################################
+# Create credentials for Databases for Etcd instance above
+##############################################################################
+resource "ibm_resource_key" "cos_credentials" {
+    name                 = "${ibm_container_vpc_cluster.app_ocp_cluster_01.name}-creds"
+    role                 = "Writer"
+    resource_instance_id = ibm_resource_instance.nooba_store.id
+    parameters           = { "HMAC" = true }
+
+    depends_on = [ibm_resource_instance.nooba_store]
+}
