@@ -146,13 +146,13 @@ resource "ibm_container_vpc_worker_pool" "sds_pool" {
 
 
 ##############################################################################
-# Create instance of Databases for Etcd for use with Portworx in OCP Cluster
+# Create instance of Cloud Object Storage for use with OCS in OCP Cluster
 ##############################################################################
 resource "ibm_resource_instance" "nooba_store" {
     name              = "nooba-store-${ibm_container_vpc_cluster.app_ocp_cluster_01.name}"
     service           = "cloud-object-storage"
     plan              = "standard"
-    location          = var.region
+    location          = "global"
     resource_group_id = data.ibm_resource_group.app_resource_group.id
     tags              = ["env:${var.environment}",
                          "vpc:${var.vpc_name}",
