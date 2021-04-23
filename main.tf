@@ -184,7 +184,7 @@ data "ibm_container_cluster_config" "mycluster" {
   cluster_name_id = resource.ibm_container_vpc_cluster.app_ocp_cluster_01.name
 
   depends_on = [
-    "ibm_container_vpc_cluster.app_ocp_cluster_01"
+    ibm_container_vpc_cluster.app_ocp_cluster_01
   ]
 }
 
@@ -200,6 +200,6 @@ resource "kubernetes_namespace" "ocs" {
     labels = {
       "openshift.io/cluster-monitoring" = "true"
     }
-    name = "terraform-example-namespace"
+    name = "dw-example-namespace"
   }
 }
