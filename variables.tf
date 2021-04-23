@@ -16,6 +16,14 @@ variable "generation" {
     default = 2
 }
 
+variable "environment" {
+    default = "engg"
+}
+
+variable "vpc_name" {
+    default = "engineering-dallas"
+}
+
 variable "vpc_schematics_workspace_id" {
     description = "The schematics workspace ID that provisioned the VPC. Used to get VPC and subnets."
     default = "not-using-schematics"
@@ -26,17 +34,8 @@ variable "schematics_workspace_id" {
     default = "not-using-schematics"
 }
 
-
-variable "vsi_resource_group" {
-    description = "The name of the resource group for VSIs"
-}
-
 variable "app_resource_group" {
     description = "The name of the resource group for the App IKS cluster"
-}
-
-variable "admin_resource_group" {
-    description = "The name of the resource group for the Admin IKS cluster"
 }
 
 variable "cos_registry_instance" {
