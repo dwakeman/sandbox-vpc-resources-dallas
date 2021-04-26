@@ -102,9 +102,6 @@ resource "ibm_container_vpc_cluster" "app_ocp_cluster_01" {
     }
 
     depends_on = [
-#        ibm_is_volume.px_sds_volume1, 
-#        ibm_is_volume.px_sds_volume2,
-#        ibm_is_volume.px_sds_volume3,
         ibm_kp_key.ocp_01_kp_key
 
     ]
@@ -114,6 +111,7 @@ resource "ibm_container_vpc_cluster" "app_ocp_cluster_01" {
 # Create Worker Pool for Portworx or Openshift Container Storage (SDS) 
 ##############################################################################
 resource "ibm_container_vpc_worker_pool" "sds_pool" {
+    count             = var.install_ocs == "true" ? 1 : 0
     cluster           = ibm_container_vpc_cluster.app_ocp_cluster_01.name
     worker_pool_name  = "sds"
     flavor            = "cx2.16x32"
@@ -149,6 +147,7 @@ resource "ibm_container_vpc_worker_pool" "sds_pool" {
 # Create instance of Cloud Object Storage for use with OCS in OCP Cluster
 ##############################################################################
 resource "ibm_resource_instance" "nooba_store" {
+    count             = var.install_ocs == "true" ? 1 : 0
     name              = "nooba-store-${ibm_container_vpc_cluster.app_ocp_cluster_01.name}"
     service           = "cloud-object-storage"
     plan              = "standard"
@@ -172,6 +171,7 @@ resource "ibm_resource_instance" "nooba_store" {
 # Create credentials for Databases for Etcd instance above
 ##############################################################################
 resource "ibm_resource_key" "cos_credentials" {
+    count                = var.install_ocs == "true" ? 1 : 0
     name                 = "${ibm_container_vpc_cluster.app_ocp_cluster_01.name}-creds"
     role                 = "Writer"
     resource_instance_id = ibm_resource_instance.nooba_store.id
@@ -180,6 +180,9 @@ resource "ibm_resource_key" "cos_credentials" {
     depends_on = [ibm_resource_instance.nooba_store]
 }
 
+##############################################################################
+# Get the configuration file for the cluster created above
+##############################################################################
 data "ibm_container_cluster_config" "mycluster" {
   cluster_name_id = ibm_container_vpc_cluster.app_ocp_cluster_01.name
 
@@ -188,6 +191,9 @@ data "ibm_container_cluster_config" "mycluster" {
   ]
 }
 
+##############################################################################
+# Defines a provider that can connect to the cluster above
+##############################################################################
 provider "kubernetes" {
   //load_config_file       = "false"
   host                   = data.ibm_container_cluster_config.mycluster.host
@@ -197,10 +203,14 @@ provider "kubernetes" {
 
 
 resource "kubernetes_namespace" "ocs" {
-  metadata {
-    labels = {
-      "openshift.io/cluster-monitoring" = "true"
+    count = var.install_ocs == "true" ? 1 : 0
+    metadata {
+      labels = {
+        "openshift.io/cluster-monitoring" = "true"
+      }
+      name = "dw-openshift-storage"
     }
-    name = "dw-example-namespace"
-  }
+    depends_on = [
+      ibm_container_vpc_cluster.app_ocp_cluster_01
+    ]
 }

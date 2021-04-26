@@ -1,6 +1,6 @@
 provider "ibm" {
-    generation = var.generation
+    //generation = var.generation
     region     = var.region
-    version    = "~> 1.7"
+    version    = "~> 1.23"
 
 }

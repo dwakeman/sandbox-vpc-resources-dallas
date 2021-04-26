@@ -12,16 +12,12 @@ variable "region" {
     default = "us-south"
 }
 
-variable "generation" {
-    default = 2
-}
-
 variable "environment" {
-    default = "engg"
+    default = "sbx"
 }
 
 variable "vpc_name" {
-    default = "engineering-dallas"
+    default = "sandbox-dallas"
 }
 
 variable "vpc_schematics_workspace_id" {
@@ -56,5 +52,9 @@ variable "kms_resource_group" {
 variable "kms_instance" {
     description = "the name of the Key Protect or HPCS instance where the key will be created"
     default = "key-protect-dallas-dw"
+}
 
+variable "install_ocs" {
+  description = "Determines whether OpenShift Container Storage Add-on is installed in the cluster"
+  default = "false"
 }
