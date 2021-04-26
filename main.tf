@@ -147,7 +147,7 @@ resource "ibm_container_vpc_worker_pool" "sds_pool" {
 # Create instance of Cloud Object Storage for use with OCS in OCP Cluster
 ##############################################################################
 resource "ibm_resource_instance" "nooba_store" {
-    count             = var.install_ocs == "true" ? 1 : 0
+    //count             = var.install_ocs == "true" ? 1 : 0
     name              = "nooba-store-${ibm_container_vpc_cluster.app_ocp_cluster_01.name}"
     service           = "cloud-object-storage"
     plan              = "standard"
@@ -168,10 +168,10 @@ resource "ibm_resource_instance" "nooba_store" {
 
 
 ##############################################################################
-# Create credentials for Databases for Etcd instance above
+# Create credentials for Cloud Object Storage instance above
 ##############################################################################
 resource "ibm_resource_key" "cos_credentials" {
-    count                = var.install_ocs == "true" ? 1 : 0
+    //count                = var.install_ocs == "true" ? 1 : 0
     name                 = "${ibm_container_vpc_cluster.app_ocp_cluster_01.name}-creds"
     role                 = "Writer"
     resource_instance_id = ibm_resource_instance.nooba_store.id
@@ -203,7 +203,7 @@ provider "kubernetes" {
 
 
 resource "kubernetes_namespace" "ocs" {
-    count = var.install_ocs == "true" ? 1 : 0
+    //count = var.install_ocs == "true" ? 1 : 0
     metadata {
       labels = {
         "openshift.io/cluster-monitoring" = "true"
@@ -213,4 +213,22 @@ resource "kubernetes_namespace" "ocs" {
     depends_on = [
       ibm_container_vpc_cluster.app_ocp_cluster_01
     ]
+}
+
+resource "kubernetes_secret" "ibm_cloud_cos_credentials" {
+  metadata {
+    name = "ibm-cloud-cos-creds"
+    namespace = "dw-openshift-storage"
+  }
+
+  data = {
+    IBM_COS_ACCESS_KEY_ID = lookup(ibm_resource_key.cos_credentials.credentials, "cos_hmac_keys.access_key_id")
+    IBM_COS_SECRET_ACCESS_KEY = lookup(ibm_resource_key.cos_credentials.credentials, "cos_hmac_keys.secret_access_key")
+  }
+
+  type = "Opaque"
+
+  depends_on = [
+    ibm_resource_key.cos_credentials
+  ]
 }
